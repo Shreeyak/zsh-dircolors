@@ -1,2 +1,2 @@
 #compdef setupsolarized
-_arguments "1: :($(lssolarized | tr "\n" " "))"
+_arguments "1: :($(lsdircolors | tr "\n" " "))"
