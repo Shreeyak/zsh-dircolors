@@ -6,20 +6,28 @@ fi
 
 function _setup_dircolors {
   local dircolors_dir
-  local theme
-  local theme_path
+  local scheme
+  local scheme_path
 
   dircolors_dir="${ZSH_DIRCOLORS_DIR:-${0:A:h}/dircolors}"
-  zstyle -s ':pszynk:module:dircolors' theme 'theme' || theme='dircolors.ansi-universal'
-  theme_path="${dircolors_dir}/${theme}"
+  zstyle -s ':pszynk:module:dircolors' scheme 'scheme' || scheme='dircolors.ansi-universal'
 
-  if [[ -f $theme_path ]]; then
-    eval $(dircolors $theme_path)
-    return 0
+  scheme_path="${dircolors_dir}/${scheme}"
+  if [[ ! -f $scheme_path ]]; then
+    scheme_path="${dircolors_dir}/dircolors.${scheme}"
+    if [[ ! -f $scheme_path ]]; then
+      print "Could not load dircolors scheme, file not found: '$scheme_path'" >&2
+      return 1
+    fi
   fi
 
-  print "Could not load dircolors theme, file not found: '$theme_path'" >&2
-  return 1
+  unset LS_COLORS && eval $(dircolors $scheme_path)
+  if [[ $LS_COLORS = '' ]]; then
+     print "Dircolor scheme '${scheme_path}' does not support terminal '${TERM}'!" >&2
+     return 1
+  fi
+  return 0
+
 }
 
 _setup_dircolors $@
